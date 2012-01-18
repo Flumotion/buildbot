@@ -36,8 +36,6 @@ def getChanges(request, options=None):
         try:
             payload = json.loads(request.args['payload'][0])
             changes = process_change(payload)
-            log.msg("Received build request from buildbot for project %s" %
-                    project)
             return changes
         except Exception:
             logging.error("Encountered an exception:")
@@ -54,9 +52,12 @@ def process_change(payload):
                 Hook.
         """
         changes = []
-        json_change = payload['change']
+        project = payload['project']
+        revision = payload['revision']
+        author = payload.get('author', 'None')
         log.msg( "in process_change" )
-        log.msg("New revision: %s" % json_change['revision'][:8])
-        changeObject = Change(**json_change)
-        changes.append(changeObject)
+        log.msg("Received build request from %s for project %s:%s" %
+                (author, project, revision))
+        log.msg("New revision: %s" % 'revision'[:8])
+        changes.append(Change(author, [], "", revision=revision, project=project))
         return changes
